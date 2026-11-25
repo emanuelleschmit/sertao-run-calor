@@ -1,0 +1,48 @@
+<section class="card" aria-labelledby="t-campo" style="display:grid;gap:14px">
+  <div style="display:grid;gap:4px">
+    <span class="eyebrow">Medições de campo</span>
+    <h2 id="t-campo">Registro do TGD-400</h2>
+    <p class="status">Cada leitura do medidor fica ao lado da estimativa do mesmo horário e local. Com as leituras acumuladas, a página calcula a concordância entre o IBUTG medido e o estimado.</p>
+  </div>
+  <form id="fm" autocomplete="off">
+    <div class="grid">
+      <label>Data<input id="m_data" type="date" required></label>
+      <label>Hora da leitura<input id="m_hora" type="time" required></label>
+      <label>Ponto ou rota<input id="m_ponto" placeholder="Ex.: Orla 1, largada" required></label>
+      <label>Medidor<select id="m_med"><option>TGD-400 nº 1</option><option>TGD-400 nº 2</option><option>TGD-400 nº 3</option></select></label>
+      <label>IBUTG medido (°C)<input id="m_ibutg" inputmode="decimal" required></label>
+      <label>Temp. do ar (°C)<input id="m_ta" inputmode="decimal"></label>
+      <label>Umidade (%)<input id="m_ur" inputmode="decimal"></label>
+      <label>Globo (°C)<input id="m_tg" inputmode="decimal"></label>
+      <label>Bulbo úmido nat. (°C)<input id="m_tbn" inputmode="decimal"></label>
+      <label>Latitude (opcional)<input id="m_lat" inputmode="decimal"></label>
+      <label>Longitude (opcional)<input id="m_lon" inputmode="decimal"></label>
+      <label>Responsável (iniciais)<input id="m_resp" maxlength="8"></label>
+    </div>
+    <label style="margin-top:12px">Observação<input id="m_obs" placeholder="Ex.: sol pleno, asfalto, sem sombra"></label>
+    <div class="acoes">
+      <button class="prim" type="submit" id="m_go">Salvar leitura</button>
+      <button type="button" id="m_csv">Exportar CSV</button>
+      <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer" class="status">
+        <span style="border:1px solid var(--line);border-radius:8px;padding:8px 14px;color:var(--fg)">Importar CSV</span>
+        <input type="file" id="m_imp" accept=".csv,text/csv" hidden>
+      </label>
+      <span class="status" id="m_st" role="status"></span>
+    </div>
+  </form>
+  <p class="aviso">Sem latitude e longitude, a estimativa usa o local selecionado no formulário de treino. As leituras ficam salvas só neste navegador: exporte o CSV ao fim de cada dia de campo e guarde na pasta do projeto. Não registre dados de participantes aqui.</p>
+
+  <div>
+    <h3>Concordância medido × estimado</h3>
+    <div class="stats" id="m_stats"></div>
+    <div class="grafico" id="m_ba"></div>
+    <p class="status" id="m_baTxt" style="margin-top:6px"></p>
+  </div>
+
+  <div class="tabela">
+    <table>
+      <thead><tr><th>Data</th><th>Hora</th><th>Ponto</th><th>Medidor</th><th>Medido</th><th>Estimado</th><th>Diferença</th><th>Níveis</th><th>Resp.</th><th></th></tr></thead>
+      <tbody id="m_tb"></tbody>
+    </table>
+  </div>
+</section>

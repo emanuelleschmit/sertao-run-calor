@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "Se usar esta ferramenta, cite-a como abaixo."
+title: "SERTÃO-RUN Calor: calculadora de estresse térmico para corrida no Vale do São Francisco"
+type: software
+version: "1.0.0"
+date-released: "2026-11-25"
+license: MIT
+authors:
+  - family-names: "Schmit"
+    given-names: "Emanuelle Francine Detogni"
+    affiliation: "Universidade de Pernambuco, Campus Petrolina"
+    orcid: "https://orcid.org/0000-0002-5530-2773"
+keywords:
+  - "IBUTG"
+  - "WBGT"
+  - "estresse térmico"
+  - "corrida"
+  - "semiárido"

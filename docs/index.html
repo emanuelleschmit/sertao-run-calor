@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="IBUTG estimado e risco de calor para treinos de corrida no Vale do São Francisco. Projeto SERTÃO-RUN, UPE Campus Petrolina.">
+<title>SERTÃO-RUN Calor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: coluna única de leitura, cartão de risco no topo, curva do dia logo abaixo, campo de registro por último. */
+:root{
+  --bg:#f6f7f4; --surface:#ffffff; --fg:#1d2328; --muted:#5d6872; --line:#dde2e0;
+  --rio:#1f5f8b; --rio-soft:#e3eef6;
+  --n1:#3f8f5a; --n2:#c8a12a; --n3:#d9772b; --n4:#c2412d; --n5:#7b1f2b;
+  --n1s:#e6f2ea; --n2s:#f8f0d6; --n3s:#fbe8d8; --n4s:#f6dcd7; --n5s:#efd6da;
+  --noite:rgba(31,52,74,.10);
+  --f-display:"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12171b; --surface:#1a2126; --fg:#e7ecee; --muted:#9aa6ae; --line:#2c363d;
+  --rio:#6fb0dc; --rio-soft:#1b2e3b;
+  --n1:#5fb57a; --n2:#e0bd4c; --n3:#ee9452; --n4:#e8664f; --n5:#d0606f;
+  --n1s:#1b2e22; --n2s:#30291a; --n3s:#33251a; --n4s:#36201c; --n5s:#341b22;
+  --noite:rgba(120,150,180,.12); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12171b; --surface:#1a2126; --fg:#e7ecee; --muted:#9aa6ae; --line:#2c363d;
+  --rio:#6fb0dc; --rio-soft:#1b2e3b;
+  --n1:#5fb57a; --n2:#e0bd4c; --n3:#ee9452; --n4:#e8664f; --n5:#d0606f;
+  --n1s:#1b2e22; --n2s:#30291a; --n3s:#33251a; --n4s:#36201c; --n5s:#341b22;
+  --noite:rgba(120,150,180,.12); color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:15px/1.55 var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:880px;margin:0 auto;display:grid;gap:22px}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:.01em;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.05}
+h2{font-size:22px}
+h3{font-size:17px;font-weight:600}
+p{margin:0}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--rio);font-weight:600}
+.lead{color:var(--muted);max-width:64ch}
+header{display:grid;gap:8px}
+.versao{display:inline-block;font-size:12px;padding:2px 10px;border:1px solid var(--line);border-radius:99px;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+form .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+label{display:grid;gap:4px;font-size:13px;color:var(--muted);min-width:0}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible,textarea:focus-visible{outline:2px solid var(--rio);outline-offset:1px}
+.atalhos{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:8px 14px}
+button.prim{background:var(--rio);border-color:var(--rio);color:#fff;font-weight:600}
+:root[data-theme="dark"] button.prim{color:#0d1a24}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button.prim{color:#0d1a24}}
+button.chip{padding:4px 12px;border-radius:99px;font-size:13px}
+button:disabled{opacity:.5;cursor:default}
+.acoes{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.status{font-size:13px;color:var(--muted)}
+.status.erro{color:var(--n4)}
+.sugest{position:relative}
+.sugest ul{position:absolute;z-index:5;left:0;right:0;top:100%;margin:4px 0 0;padding:4px;list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;max-height:220px;overflow:auto}
+.sugest li{padding:6px 8px;border-radius:6px;cursor:pointer}
+.sugest li:hover,.sugest li[aria-selected="true"]{background:var(--rio-soft)}
+
+/* cartão de risco */
+.risco{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;border-left:6px solid var(--nc,var(--line))}
+.risco .num{font-family:var(--f-display);font-size:56px;line-height:1;font-weight:700;font-variant-numeric:tabular-nums}
+.risco .num small{font-size:18px;font-weight:600;color:var(--muted);margin-left:2px}
+.pill{display:inline-block;font-size:13px;font-weight:600;padding:3px 12px;border-radius:99px;background:var(--ns,var(--line));color:var(--nc,var(--fg))}
+.risco .meta{color:var(--muted);font-size:13px}
+.risco ul{margin:8px 0 0;padding-left:18px}
+.medida{margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--rio-soft);font-size:14px}
+@media (max-width:520px){.risco{grid-template-columns:1fr}}
+.vars{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px}
+.vars div{display:grid;gap:2px;padding:10px;border:1px solid var(--line);border-radius:8px}
+.vars span{font-size:12px;color:var(--muted)}
+.vars b{font-family:var(--f-display);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+
+.janelas{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.janela{padding:12px;border:1px solid var(--line);border-radius:10px;display:grid;gap:4px}
+.janela .h{font-family:var(--f-display);font-size:24px;font-weight:700}
+.janela .t{font-size:13px;color:var(--muted)}
+
+.grafico{overflow-x:auto}
+.grafico svg{display:block;width:100%;min-width:560px;height:auto}
+.legenda{display:flex;flex-wrap:wrap;gap:10px 16px;font-size:12px;color:var(--muted);margin-top:8px}
+.legenda i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px}
+
+.niveis{display:grid;gap:6px;margin-top:8px}
+.niveis div{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:8px 10px;border-radius:8px;font-size:14px}
+.niveis b{font-weight:600;font-variant-numeric:tabular-nums}
+@media (max-width:520px){.niveis div{grid-template-columns:1fr}}
+
+.tabela{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{color:var(--muted);font-weight:500}
+td button{padding:2px 8px;font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
+.stats div{padding:10px;border:1px solid var(--line);border-radius:8px;display:grid;gap:2px}
+.stats span{font-size:12px;color:var(--muted)}
+.stats b{font-family:var(--f-display);font-size:22px;font-variant-numeric:tabular-nums}
+.aviso{font-size:13px;color:var(--muted);border-left:3px solid var(--rio);padding:4px 0 4px 12px}
+details summary{cursor:pointer;font-weight:600}
+.fontes{font-size:13px;color:var(--muted);display:grid;gap:8px}
+.fontes ol{margin:0;padding-left:18px;display:grid;gap:4px}
+.fontes a{color:var(--rio)}
+.n1{--nc:var(--n1);--ns:var(--n1s)} .n2{--nc:var(--n2);--ns:var(--n2s)} .n3{--nc:var(--n3);--ns:var(--n3s)}
+.n4{--nc:var(--n4);--ns:var(--n4s)} .n5{--nc:var(--n5);--ns:var(--n5s)}
+.bgn{background:var(--ns)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">SERTÃO-RUN · UPE Campus Petrolina</span>
+  <h1>Calor no treino de corrida</h1>
+  <p class="lead">IBUTG estimado hora a hora para corrida no Vale do São Francisco, calculado a partir da temperatura, umidade, vento e radiação solar. Mostra o risco do treino, a curva do dia e o melhor horário com e sem luz do dia.</p>
+  <span class="versao">Versão 1 · estimativa, para uso imediato</span>
+</header>
+
+<section class="card" aria-labelledby="t-consulta">
+  <h2 id="t-consulta" style="margin-bottom:12px">Treino</h2>
+  <form id="f" autocomplete="off">
+    <div class="grid">
+      <label class="sugest">Local
+        <input id="local" value="Petrolina, PE" aria-autocomplete="list">
+        <ul id="sug" hidden role="listbox"></ul>
+      </label>
+      <label>Data<input id="data" type="date" required></label>
+      <label>Início<input id="hora" type="time" value="05:30" required></label>
+      <label>Duração (min)<input id="dur" type="number" min="15" max="360" step="5" value="60" required></label>
+      <label>Escala de risco<select id="escala">
+        <option value="auto">Categoria do local (automática)</option>
+        <option value="3">Categoria 3 (mais quente)</option>
+        <option value="2">Categoria 2</option>
+        <option value="1">Categoria 1 (mais amena)</option>
+      </select></label>
+    </div>
+    <div class="atalhos">
+      <button type="button" class="chip" data-lat="-9.39861" data-lon="-40.50083" data-nome="Petrolina, PE">Petrolina</button>
+      <button type="button" class="chip" data-lat="-9.41167" data-lon="-40.49861" data-nome="Juazeiro, BA">Juazeiro</button>
+      <button type="button" class="chip" id="coordBtn">Coordenadas exatas</button>
+    </div>
+    <div class="grid" id="coordBox" hidden style="margin-top:10px">
+      <label>Latitude<input id="lat" inputmode="decimal" value="-9.39861"></label>
+      <label>Longitude<input id="lon" inputmode="decimal" value="-40.50083"></label>
+    </div>
+    <div class="acoes">
+      <button class="prim" type="submit" id="go">Calcular risco</button>
+      <span class="status" id="st" role="status"></span>
+    </div>
+  </form>
+</section>
+
+<section id="res" hidden style="display:grid;gap:22px">
+  <div class="card risco" id="cartao">
+    <div>
+      <div class="num" id="valor">--<small>°C</small></div>
+      <div class="meta">IBUTG máximo no treino</div>
+    </div>
+    <div style="min-width:0;display:grid;gap:6px">
+      <div><span class="pill" id="pill">--</span></div>
+      <p class="meta" id="contexto"></p>
+      <p id="acao"></p>
+      <ul id="extras"></ul>
+      <div class="medida" id="medidaBox" hidden></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:10px">Condições no pico do treino</h3>
+    <div class="vars" id="vars"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:4px">Melhor horário para este treino</h3>
+    <p class="meta status" style="margin-bottom:10px" id="jTxt"></p>
+    <div class="janelas" id="janelas"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:6px">IBUTG ao longo do dia</h3>
+    <div class="grafico" id="graf"></div>
+    <div class="legenda" id="leg"></div>
+  </div>
+</section>
+
+
+
+<section class="card" aria-labelledby="t-niveis">
+  <h2 id="t-niveis">Níveis de risco usados</h2>
+  <p class="status" id="catTxt" style="margin-top:4px"></p>
+  <div class="niveis" id="niveis"></div>
+  <p class="status" style="margin-top:10px">As faixas vêm das diretrizes regionais de Grundstein et al. (2015), que ajustam os limiares ao calor a que a população local está aclimatada. A categoria de cada local segue o critério do artigo: percentil 90 do IBUTG máximo diário na estação quente (32,3 °C ou mais, categoria 3; de 30,1 a 32,2 °C, categoria 2; até 30 °C, categoria 1). Aqui a estação quente é a dos 5 meses consecutivos mais quentes do local, e o cálculo usa 10 anos da reanálise ERA5 com o mesmo método de Liljegren. Essas diretrizes foram feitas para os Estados Unidos e pressupõem atletas aclimatados; não há tabela validada para o semiárido.</p>
+</section>
+
+<section class="card" aria-labelledby="t-cuidados">
+  <h2 id="t-cuidados" style="margin-bottom:8px">Cuidados que valem em qualquer nível</h2>
+  <ul style="margin:0;padding-left:18px;display:grid;gap:6px">
+    <li>Aclimatação: aumente a duração e a intensidade aos poucos, ao longo de 7 a 14 dias de treino no calor. Sem calor por cerca de 3 semanas, o ganho se perde.</li>
+    <li>Um dia de IBUTG alto aumenta o risco no treino do dia seguinte. Planeje a semana olhando os dias em sequência.</li>
+    <li>Sinais de alerta: tontura, náusea, cãibras, dor de cabeça, confusão ou fala alterada. Confusão ou desmaio é emergência.</li>
+    <li>Na suspeita de intermação, resfrie primeiro e transporte depois: imersão em água fria por 10 a 15 minutos e acione o SAMU (192).</li>
+    <li>Treino antes do nascer do sol: prefira percurso iluminado e em grupo, e avise alguém do trajeto.</li>
+  </ul>
+</section>
+
+<section class="card fontes" aria-labelledby="t-fontes">
+  <h2 id="t-fontes" style="color:var(--fg)">Método, fontes e limites</h2>
+  <p>O IBUTG é estimado (0,7 × bulbo úmido natural + 0,2 × globo + 0,1 × temperatura do ar) pelo método de Liljegren et al. (2008), com dados horários do Open-Meteo: previsão para até 15 dias, reanálise ERA5 para datas passadas e, para datas mais distantes, a média dos últimos 10 anos (7 dias antes e depois da data). A radiação de cada hora é a média da hora anterior; o vento de 10 m é convertido para 2 m. Numa prova de corrida de 11 km acompanhada por 17 anos, o IBUTG do modelo de Liljegren explicou 63% da variação na incidência de intermação (Hosokawa et al., 2018). Para a corrida, a modelagem fisiológica de Oyama et al. (2024) sugere limites superiores mais baixos que os atuais (24 a 27 °C na maratona), o que é coerente com a escala da categoria 2.</p>
+  <p>É uma estimativa em grade de cerca de 10 km. Não capta o microclima da rota (asfalto, sombra, beira-rio) e não substitui a medição no local com medidor de IBUTG. As estimativas por modelo diferem entre si: no teste de 26/11/2026 em Petrolina, este método deu cerca de 2 °C a mais que a calculadora que inspirou esta página.</p>
+  <ol>
+    <li>Liljegren, J. C. et al. Modeling the wet bulb globe temperature using standard meteorological measurements. <i>Journal of Occupational and Environmental Hygiene</i>, v. 5, n. 10, p. 645-655, 2008. <a href="https://doi.org/10.1080/15459620802310770" target="_blank" rel="noopener">doi:10.1080/15459620802310770</a></li>
+    <li>Grundstein, A. et al. Regional heat safety thresholds for athletics in the contiguous United States. <i>Applied Geography</i>, v. 56, p. 55-60, 2015. <a href="https://doi.org/10.1016/j.apgeog.2014.10.014" target="_blank" rel="noopener">doi:10.1016/j.apgeog.2014.10.014</a></li>
+    <li>Casa, D. J. et al. National Athletic Trainers' Association position statement: exertional heat illnesses. <i>Journal of Athletic Training</i>, v. 50, n. 9, p. 986-1000, 2015. <a href="https://doi.org/10.4085/1062-6050-50.9.07" target="_blank" rel="noopener">doi:10.4085/1062-6050-50.9.07</a></li>
+    <li>Hosokawa, Y. et al. Exertional heat illness incidence and on-site medical team preparedness in warm weather. <i>International Journal of Biometeorology</i>, v. 62, n. 7, p. 1147-1153, 2018. <a href="https://doi.org/10.1007/s00484-018-1517-3" target="_blank" rel="noopener">doi:10.1007/s00484-018-1517-3</a></li>
+    <li>Oyama, T. et al. Validation of upper thermal thresholds for outdoor sports using thermal physiology modelling. <i>Temperature</i>, v. 11, n. 1, p. 92-106, 2024. <a href="https://doi.org/10.1080/23328940.2023.2210477" target="_blank" rel="noopener">doi:10.1080/23328940.2023.2210477</a></li>
+    <li>Roberts, W. O. et al. ACSM expert consensus statement on exertional heat illness: recognition, management, and return to activity. <i>Current Sports Medicine Reports</i>, v. 22, n. 4, p. 134-149, 2023. <a href="https://doi.org/10.1249/JSR.0000000000001058" target="_blank" rel="noopener">doi:10.1249/JSR.0000000000001058</a></li>
+    <li>Dados meteorológicos: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0).</li>
+    <li>Inspiração: calculadora <a href="https://esporteseguro.lovable.app/" target="_blank" rel="noopener">Calor no Esporte</a>, de Diêgo Augusto (UERJ).</li>
+  </ol>
+  <p>Ferramenta de apoio à decisão do projeto SERTÃO-RUN (FACEPE, APQ 28/2026). Nenhuma consulta é enviada a servidor do projeto.</p>
+</section>
+
+</div>
+
+<script>
+// Motor de cálculo do IBUTG (WBGT) ao ar livre, SERTÃO-RUN.
+// Método de Liljegren et al. (2008), J Occup Environ Hyg 5(10):645-655,
+// doi:10.1080/15459620802310770, a partir de dados meteorológicos padrão.
+// IBUTG = 0,7 Tbn + 0,2 Tg + 0,1 Ta.
+// Este arquivo é a fonte; o mesmo código vai embutido nas duas páginas.
+var IBUTG = (function () {
+  var STEFANB = 5.6696e-8, CP = 1003.5, M_AIR = 28.97, M_H2O = 18.015;
+  var RATIO = CP * M_AIR / M_H2O, R_GAS = 8314.34, R_AIR = R_GAS / M_AIR;
+  var PR = CP / (CP + 1.25 * R_AIR);
+  var EMIS_WICK = 0.95, ALB_WICK = 0.4, D_WICK = 0.007, L_WICK = 0.0254;
+  var EMIS_GLOBE = 0.95, ALB_GLOBE = 0.05, D_GLOBE = 0.0508;
+  var EMIS_SFC = 0.999, ALB_SFC = 0.45, MIN_SPEED = 0.13;
+  var SOLAR_CONST = 1367;
+
+  function esat(T) { // hPa, T em K (Buck)
+    var tc = T - 273.15;
+    return 6.1121 * Math.exp(17.502 * tc / (T - 32.18));
+  }
+  function viscosity(T) {
+    var omega = (T / 97 - 2.9) / 0.4 * (-0.034) + 1.048;
+    return 2.6693e-6 * Math.sqrt(M_AIR * T) / (3.617 * 3.617 * omega);
+  }
+  function thermalCond(T) { return (CP + 1.25 * R_AIR) * viscosity(T); }
+  function diffusivity(T, P) {
+    var pcrit13 = Math.pow(36.4 * 218, 1 / 3), tcrit512 = Math.pow(132 * 647.3, 5 / 12);
+    var tcrit12 = Math.sqrt(132 * 647.3), mmix = Math.sqrt(1 / M_AIR + 1 / M_H2O);
+    return 3.64e-4 * Math.pow(T / tcrit12, 2.334) * pcrit13 * tcrit512 * mmix / (P / 1013.25) * 1e-4;
+  }
+  function evap(T) { return (313.15 - T) / 30 * (-71100) + 2.4073e6; }
+  function emisAtm(T, rh) { return 0.575 * Math.pow(rh * esat(T), 0.143); }
+  function hSphere(T, P, u) {
+    var rho = P * 100 / (R_AIR * T), re = u * rho * D_GLOBE / viscosity(T);
+    return (2 + 0.6 * Math.sqrt(re) * Math.pow(PR, 0.3333)) * thermalCond(T) / D_GLOBE;
+  }
+  function hCyl(T, P, u) {
+    var rho = P * 100 / (R_AIR * T), re = u * rho * D_WICK / viscosity(T);
+    return 0.281 * Math.pow(re, 0.6) * Math.pow(PR, 0.44) * thermalCond(T) / D_WICK;
+  }
+
+  // Posição do Sol (algoritmo NOAA simplificado). Devolve cosseno do zênite.
+  function cosZenith(dateUTC, lat, lon) {
+    var d = dateUTC, start = Date.UTC(d.getUTCFullYear(), 0, 1);
+    var doy = (d.getTime() - start) / 86400000; // fracional
+    var hr = d.getUTCHours() + d.getUTCMinutes() / 60;
+    var g = 2 * Math.PI / 365 * (doy + (hr - 12) / 24);
+    var eqt = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+    var decl = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+    var tst = hr * 60 + eqt + 4 * lon; // minutos, tempo solar verdadeiro
+    var ha = (tst / 4 - 180) * Math.PI / 180, phi = lat * Math.PI / 180;
+    return Math.sin(phi) * Math.sin(decl) + Math.cos(phi) * Math.cos(decl) * Math.cos(ha);
+  }
+
+  // Nascer e pôr do sol (horário local), varrendo o dia de minuto em minuto.
+  function sunTimes(y, m, dd, lat, lon, utcOffsetH) {
+    var lim = Math.cos((90.833) * Math.PI / 180), rise = null, set = null, prev = null;
+    for (var min = 0; min <= 1440; min += 2) {
+      var t = new Date(Date.UTC(y, m - 1, dd, 0, min) - utcOffsetH * 3600000);
+      var up = cosZenith(t, lat, lon) > lim;
+      if (prev !== null && up && !prev && rise === null) rise = min / 60;
+      if (prev !== null && !up && prev) set = min / 60;
+      prev = up;
+    }
+    return { nascer: rise, por: set };
+  }
+
+  // ta °C, ur %, ventoMs (10 m), solar W/m² (global), direta W/m², pHpa, cza
+  function calc(ta, ur, vento10, solar, direta, pHpa, cza) {
+    var Tair = ta + 273.15, rh = Math.max(0.01, ur / 100), P = pHpa || 1000;
+    // vento de 10 m para 2 m por lei de potência (expoente 0,25)
+    var u = Math.max(MIN_SPEED, vento10 * Math.pow(2 / 10, 0.25));
+    var S = Math.max(0, solar || 0), fdir = 0;
+    if (cza <= 0.01) { S = 0; cza = 0.01; }
+    S = Math.min(S, SOLAR_CONST * cza);
+    if (S > 0 && direta != null) fdir = Math.min(0.9, Math.max(0, direta / S));
+    if (cza < 0.1) fdir = 0; // sol baixo: trata a radiação como difusa
+    var ea = emisAtm(Tair, rh), Tsfc = Tair;
+    // temperatura de globo
+    var tg = Tair, i, tgNew;
+    for (i = 0; i < 80; i++) {
+      var h = hSphere(0.5 * (tg + Tair), P, u);
+      tgNew = Math.pow(0.5 * (ea * Math.pow(Tair, 4) + EMIS_SFC * Math.pow(Tsfc, 4))
+        - h / (STEFANB * EMIS_GLOBE) * (tg - Tair)
+        + S / (2 * STEFANB * EMIS_GLOBE) * (1 - ALB_GLOBE) * (fdir * (1 / (2 * cza) - 1) + 1 + ALB_SFC), 0.25);
+      if (Math.abs(tgNew - tg) < 0.005) { tg = tgNew; break; }
+      tg = 0.9 * tg + 0.1 * tgNew;
+    }
+    // bulbo úmido natural
+    var eair = rh * esat(Tair);
+    var tw = Tair - 5, twNew, zen = Math.acos(Math.min(1, cza));
+    for (i = 0; i < 200; i++) {
+      var tref = 0.5 * (tw + Tair), hc = hCyl(tref, P, u);
+      var fatm = STEFANB * EMIS_WICK * (0.5 * (ea * Math.pow(Tair, 4) + EMIS_SFC * Math.pow(Tsfc, 4)) - Math.pow(tw, 4))
+        + (1 - ALB_WICK) * S * ((1 - fdir) * (1 + 0.25 * D_WICK / L_WICK) + fdir * (Math.tan(zen) / Math.PI + 0.25 * D_WICK / L_WICK) + ALB_SFC);
+      var ew = esat(tw), rho = P * 100 / (R_AIR * tref);
+      var sc = viscosity(tref) / (rho * diffusivity(tref, P));
+      twNew = Tair - evap(tref) / RATIO * (ew - eair) / (P - ew) * Math.pow(PR / sc, 0.56) + fatm / hc;
+      if (Math.abs(twNew - tw) < 0.005) { tw = twNew; break; }
+      tw = 0.7 * tw + 0.3 * twNew;
+    }
+    var tbn = tw - 273.15, tgc = tg - 273.15;
+    return { ibutg: 0.7 * tbn + 0.2 * tgc + 0.1 * ta, tbn: tbn, tg: tgc };
+  }
+
+  // Tabela 3 de Grundstein et al. (2015), Applied Geography 56:55-60,
+  // doi:10.1016/j.apgeog.2014.10.014: diretrizes regionais baseadas na política da
+  // Georgia High School Association (a mesma da Tabela 5 da NATA, Casa et al., 2015),
+  // deslocadas 1,3 °C (categoria 2) e 3,3 °C (categoria 1). Limites superiores inclusivos.
+  var CORTES = { 3: [27.8, 30.5, 32.2, 33.3], 2: [26.5, 29.2, 30.9, 32.0], 1: [24.5, 27.2, 28.9, 30.0] };
+  var NIVEIS = [
+    { id: 1, nome: "Atividade normal", cor: "n1",
+      acao: "Treino normal, com pelo menos 3 pausas por hora de no mínimo 3 minutos." },
+    { id: 2, nome: "Cautela", cor: "n2",
+      acao: "Cuidado com treinos intensos ou longos. Observe de perto quem tem mais risco. Pelo menos 3 pausas por hora de no mínimo 4 minutos." },
+    { id: 3, nome: "Restrição", cor: "n3",
+      acao: "Treino de no máximo 2 horas, com pelo menos 4 pausas por hora de no mínimo 4 minutos." },
+    { id: 4, nome: "Alto risco", cor: "n4",
+      acao: "Treino de no máximo 1 hora, sem tiros ou séries de condicionamento, com 20 minutos de pausa distribuídos na hora." },
+    { id: 5, nome: "Suspender", cor: "n5",
+      acao: "Sem treino ao ar livre. Adie até o IBUTG baixar." }
+  ];
+  function nivel(v, cat) {
+    var c = CORTES[cat || 3];
+    for (var i = 0; i < 4; i++) if (v <= c[i]) return NIVEIS[i];
+    return NIVEIS[4];
+  }
+  // Categoria regional pelo critério do artigo: percentil 90 do IBUTG máximo diário
+  // na estação quente (lá, maio a setembro; aqui, os 5 meses consecutivos mais quentes).
+  function categoria(p90) { return p90 >= 32.3 ? 3 : (p90 > 30.0 ? 2 : 1); }
+  function p90Local(diasMax) { // diasMax: {"AAAA-MM-DD": ibutgMax}
+    var porMes = {}, k, m;
+    for (k in diasMax) { m = +k.slice(5, 7); (porMes[m] = porMes[m] || []).push(diasMax[k]); }
+    function media(a) { var s = 0; a.forEach(function (x) { s += x; }); return s / a.length; }
+    var melhor = null;
+    for (var s = 1; s <= 12; s++) {
+      var ms = [0, 1, 2, 3, 4].map(function (j) { return ((s - 1 + j) % 12) + 1; });
+      if (ms.some(function (x) { return !porMes[x]; })) continue;
+      var v = media(ms.map(function (x) { return media(porMes[x]); }));
+      if (!melhor || v > melhor.v) melhor = { ms: ms, v: v };
+    }
+    var sel = [];
+    for (k in diasMax) if (melhor.ms.indexOf(+k.slice(5, 7)) >= 0) sel.push(diasMax[k]);
+    sel.sort(function (a, b) { return a - b; });
+    return { p90: sel[Math.floor(0.9 * (sel.length - 1))], meses: melhor.ms };
+  }
+
+  return { calc: calc, cosZenith: cosZenith, sunTimes: sunTimes, nivel: nivel, NIVEIS: NIVEIS, CORTES: CORTES,
+    categoria: categoria, p90Local: p90Local };
+})();
+
+
+</script>
+<script>
+var MODO = "agora";
+(function(){
+"use strict";
+var $ = function(id){ return document.getElementById(id); };
+var local = { lat:-9.39861, lon:-40.50083, nome:"Petrolina, PE" };
+var ultimo = null; // último resultado calculado
+// Categoria regional. Petrolina e Juazeiro: calculada em 25/11/2026 (ERA5 2016 a 2025,
+// novembro a março, mesma célula da reanálise): percentil 90 = 30,8 °C, categoria 2.
+var PRESET_CAT = { p90:30.8, meses:[11,12,1,2,3], periodo:"2016 a 2025" };
+var catLocal = { cat:2, p90:30.8, meses:[11,12,1,2,3], periodo:"2016 a 2025" };
+var MESES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+function catAtiva(){ var e=$("escala").value; return e==="auto" ? catLocal.cat : +e; }
+function nivelDe(v){ return IBUTG.nivel(v, catAtiva()); }
+function chaveCat(lat,lon){ return "sertaorun_cat_"+lat.toFixed(2)+"_"+lon.toFixed(2); }
+function textoCat(){
+  var c=catAtiva(), e=$("escala").value, t;
+  if(catLocal.p90==null) t="Categoria do local ainda não calculada; usando a categoria "+c+".";
+  else t=local.nome+": percentil 90 do IBUTG máximo diário de "+fmt(catLocal.p90)+" °C ("+catLocal.meses.map(function(m){return MESES[m-1];}).join(", ")+", "+catLocal.periodo+"), categoria "+catLocal.cat+".";
+  if(e!=="auto" && +e!==catLocal.cat) t+=" A equipe escolheu aplicar a categoria "+c+".";
+  $("catTxt").textContent=t+" Faixas em uso: categoria "+c+".";
+}
+// calcula a categoria do local com 10 anos de ERA5 (uma requisição, alguns segundos)
+function carregarCat(lat,lon){
+  if(Math.abs(lat+9.40)<0.05 && Math.abs(lon+40.50)<0.05){
+    catLocal={cat:IBUTG.categoria(PRESET_CAT.p90),p90:PRESET_CAT.p90,meses:PRESET_CAT.meses,periodo:PRESET_CAT.periodo};
+    return Promise.resolve(catLocal);
+  }
+  try{ var s=localStorage.getItem(chaveCat(lat,lon)); if(s){ catLocal=JSON.parse(s); return Promise.resolve(catLocal); } }catch(e){}
+  var a=new Date().getFullYear()-1, ini=(a-9)+"-01-01", fim=a+"-12-31";
+  status("Calculando a categoria regional do local (10 anos de dados)...");
+  return getJSON(urlBase("archive-api.open-meteo.com",lat,lon,ini,fim)).then(function(j){
+    var p=processar(j,lat,lon), max={};
+    p.horas.forEach(function(x){ if(!(x.data in max)||x.ibutg>max[x.data]) max[x.data]=x.ibutg; });
+    var r=IBUTG.p90Local(max);
+    catLocal={cat:IBUTG.categoria(r.p90),p90:r.p90,meses:r.meses,periodo:(a-9)+" a "+a};
+    try{ localStorage.setItem(chaveCat(lat,lon),JSON.stringify(catLocal)); }catch(e){}
+    return catLocal;
+  }).catch(function(){
+    catLocal={cat:3,p90:null,meses:[],periodo:""};
+    return catLocal;
+  });
+}
+
+function pad(n){ return (n<10?"0":"")+n; }
+function hoje(){ var d=new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function addDias(s,n){ var p=s.split("-"); var d=new Date(Date.UTC(+p[0],+p[1]-1,+p[2]+n)); return d.toISOString().slice(0,10); }
+function difDias(a,b){ return Math.round((Date.parse(a)-Date.parse(b))/86400000); }
+function fmt(v,c){ return (v==null||isNaN(v))?"--":v.toFixed(c==null?1:c).replace(".",","); }
+function fmtH(h){ if(h==null) return "--"; var hh=Math.floor(h), mm=Math.round((h-hh)*60); if(mm===60){hh++;mm=0;} return pad(hh)+"h"+pad(mm); }
+function fmtData(s){ var p=s.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; }
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+function status(t,erro){ var s=$("st"); s.textContent=t||""; s.className="status"+(erro?" erro":""); }
+
+$("data").value = hoje();
+
+// ---------- busca de local ----------
+var tBusca=null;
+$("local").addEventListener("input", function(){
+  clearTimeout(tBusca);
+  var q=this.value.trim();
+  if(q.length<3){ $("sug").hidden=true; return; }
+  tBusca=setTimeout(function(){
+    fetch("https://geocoding-api.open-meteo.com/v1/search?count=6&language=pt&name="+encodeURIComponent(q.split(",")[0]))
+      .then(function(r){return r.json();}).then(function(j){
+        var ul=$("sug"); ul.textContent="";
+        (j.results||[]).forEach(function(r){
+          var li=document.createElement("li"); li.setAttribute("role","option");
+          li.textContent=r.name+(r.admin1?", "+r.admin1:"")+(r.country?", "+r.country:"");
+          li.addEventListener("click",function(){
+            local={lat:r.latitude,lon:r.longitude,nome:r.name+(r.admin1?", "+r.admin1:"")};
+            $("local").value=local.nome; $("lat").value=r.latitude; $("lon").value=r.longitude; ul.hidden=true;
+          });
+          ul.appendChild(li);
+        });
+        ul.hidden=!ul.children.length;
+      }).catch(function(){ $("sug").hidden=true; });
+  },300);
+});
+document.addEventListener("click",function(e){ if(!e.target.closest(".sugest")) $("sug").hidden=true; });
+document.querySelectorAll(".atalhos .chip[data-lat]").forEach(function(b){
+  b.addEventListener("click",function(){
+    local={lat:+b.dataset.lat,lon:+b.dataset.lon,nome:b.dataset.nome};
+    $("local").value=local.nome; $("lat").value=b.dataset.lat; $("lon").value=b.dataset.lon;
+  });
+});
+$("coordBtn").addEventListener("click",function(){ $("coordBox").hidden=!$("coordBox").hidden; });
+["lat","lon"].forEach(function(id){ $(id).addEventListener("change",function(){
+  var la=parseFloat($("lat").value.replace(",",".")), lo=parseFloat($("lon").value.replace(",","."));
+  if(!isNaN(la)&&!isNaN(lo)){ local={lat:la,lon:lo,nome:"Coordenadas "+fmt(la,4)+", "+fmt(lo,4)}; $("local").value=local.nome; }
+});});
+
+// ---------- dados ----------
+var VARS="temperature_2m,relative_humidity_2m,wind_speed_10m,shortwave_radiation,direct_radiation,surface_pressure";
+function urlBase(host,lat,lon,ini,fim){
+  return "https://"+host+"/v1/"+(host.indexOf("archive")===0?"archive":"forecast")+"?latitude="+lat+"&longitude="+lon+
+    "&hourly="+VARS+"&timezone=auto&wind_speed_unit=ms&start_date="+ini+"&end_date="+fim;
+}
+function espera(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+function getJSON(u,tent){
+  tent=tent||0;
+  return fetch(u).then(function(r){
+    if(r.status===429 && tent<4) return espera(1500*(tent+1)).then(function(){ return getJSON(u,tent+1); });
+    if(!r.ok) throw new Error("HTTP "+r.status); return r.json();
+  });
+}
+
+// converte resposta horária em lista {data, hora, ibutg, ta, ur, vento, solar, tg, tbn}
+function processar(j,lat,lon){
+  var h=j.hourly, off=j.utc_offset_seconds||-10800, out=[];
+  for(var i=0;i<h.time.length;i++){
+    var ta=h.temperature_2m[i], ur=h.relative_humidity_2m[i];
+    if(ta==null||ur==null) continue;
+    var tloc=h.time[i]; // "YYYY-MM-DDTHH:00" local
+    var ms=Date.parse(tloc+":00Z")-off*1000; // instante UTC
+    var cza=IBUTG.cosZenith(new Date(ms-1800000),lat,lon); // radiação = média da hora anterior
+    var r=IBUTG.calc(ta,ur,h.wind_speed_10m[i]||0,h.shortwave_radiation[i]||0,h.direct_radiation[i],h.surface_pressure[i]||970,cza);
+    out.push({data:tloc.slice(0,10),hora:+tloc.slice(11,13),ibutg:r.ibutg,tg:r.tg,tbn:r.tbn,ta:ta,ur:ur,
+      vento:(h.wind_speed_10m[i]||0)*3.6,solar:h.shortwave_radiation[i]||0});
+  }
+  return {horas:out, off:off};
+}
+
+// devolve {horas:[24 objetos], fonte, off}
+function carregarDia(lat,lon,dia){
+  var d=difDias(dia,hoje());
+  if(d>=-90 && d<=15){
+    return getJSON(urlBase("api.open-meteo.com",lat,lon,dia,dia)).then(function(j){
+      var p=processar(j,lat,lon); return {horas:p.horas,off:p.off,fonte:d>=0?"previsão do tempo":"previsão arquivada"};
+    });
+  }
+  if(d<-90){
+    return getJSON(urlBase("archive-api.open-meteo.com",lat,lon,dia,dia)).then(function(j){
+      var p=processar(j,lat,lon); return {horas:p.horas,off:p.off,fonte:"reanálise ERA5 do dia"};
+    });
+  }
+  // climatologia: 10 anos, 7 dias antes e depois
+  var ano=+dia.slice(0,4), md=dia.slice(4), anos=[];
+  var ultimoAno = (Date.parse(String(ano-1)+md)+8*86400000 < Date.now()-6*86400000) ? ano-1 : ano-2;
+  for(var a=ultimoAno;a>ultimoAno-10;a--) anos.push(a);
+  // um ano por vez, para não esbarrar no limite de requisições do serviço
+  var js=[], cadeia=Promise.resolve();
+  anos.forEach(function(a,i){
+    cadeia=cadeia.then(function(){
+      status("Buscando a média histórica: ano "+(i+1)+" de 10...");
+      var c=String(a)+md; if(md==="-02-29") c=String(a)+"-02-28";
+      return getJSON(urlBase("archive-api.open-meteo.com",lat,lon,addDias(c,-7),addDias(c,7))).then(function(j){ js.push(j); });
+    });
+  });
+  return cadeia.then(function(){
+    var por=[], off=-10800;
+    for(var k=0;k<24;k++) por.push([]);
+    js.forEach(function(j){ var p=processar(j,lat,lon); off=p.off; p.horas.forEach(function(x){ por[x.hora].push(x); }); });
+    var horas=por.map(function(lst,hh){
+      function m(c){ var s=0; lst.forEach(function(x){s+=x[c];}); return s/lst.length; }
+      var ib=lst.map(function(x){return x.ibutg;}).sort(function(a,b){return a-b;});
+      return {data:dia,hora:hh,ibutg:m("ibutg"),p90:ib[Math.floor(0.9*(ib.length-1))],tg:m("tg"),tbn:m("tbn"),ta:m("ta"),ur:m("ur"),vento:m("vento"),solar:m("solar")};
+    });
+    return {horas:horas,off:off,fonte:"média de 10 anos ("+(ultimoAno-9)+" a "+ultimoAno+"), 7 dias antes e depois",clima:true};
+  });
+}
+
+// ---------- janelas ----------
+function janela(horas,ini,durMin){
+  // horas cujo valor horário cai no treino (com meia hora de tolerância de cada lado)
+  var fim=ini+durMin/60, best=null;
+  for(var h=Math.ceil(ini-0.5);h<fim+0.5;h++){ var x=horas[h]; if(!x) continue; if(!best||x.ibutg>best.ibutg) best=x; }
+  return best;
+}
+function melhores(horas,durMin,sol){
+  var dur=durMin/60, claro=null, escuro=null;
+  for(var s=0;s+dur<=24;s+=0.5){
+    var pico=janela(horas,s,durMin); if(!pico) continue;
+    var fim=s+dur;
+    var noClaro = sol.nascer!=null && s>=sol.nascer && fim<=sol.por;
+    var noEscuro = sol.nascer!=null && fim<=sol.nascer+0.25 && s>=3; // madrugada (a partir de 3h)
+    if(noClaro && (!claro||pico.ibutg<claro.pico.ibutg-0.05)) claro={ini:s,pico:pico};
+    if(noEscuro && (!escuro||pico.ibutg<escuro.pico.ibutg-0.05)) escuro={ini:s,pico:pico};
+  }
+  return {claro:claro,escuro:escuro};
+}
+
+// ---------- gráfico ----------
+function grafico(horas,sol,ini,durMin,pontos){
+  var W=760,H=300,L=44,R=12,T=14,B=34;
+  var vals=horas.map(function(x){return x.p90!=null?x.p90:x.ibutg;});
+  (pontos||[]).forEach(function(p){vals.push(p.v);});
+  var ymin=Math.min(16,Math.floor(Math.min.apply(null,horas.map(function(x){return x.ibutg;}))-1));
+  var ymax=Math.max(36,Math.ceil(Math.max.apply(null,vals)+1));
+  function X(h){return L+(W-L-R)*h/23;} function Y(v){return T+(H-T-B)*(ymax-v)/(ymax-ymin);}
+  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Curva do IBUTG estimado ao longo do dia">';
+  var cortes=[ymin].concat(IBUTG.CORTES[catAtiva()]).concat([ymax]), cls=["n1","n2","n3","n4","n5"];
+  for(var i=0;i<5;i++){ var y1=Y(Math.min(cortes[i+1],ymax)), y0=Y(Math.max(cortes[i],ymin)); if(y0>y1) s+='<rect class="'+cls[i]+'" x="'+L+'" y="'+y1+'" width="'+(W-L-R)+'" height="'+(y0-y1)+'" fill="var(--ns)"/>'; }
+  if(sol.nascer!=null){
+    s+='<rect x="'+L+'" y="'+T+'" width="'+(X(Math.min(23,sol.nascer))-L)+'" height="'+(H-T-B)+'" fill="var(--noite)"/>';
+    s+='<rect x="'+X(Math.min(23,sol.por))+'" y="'+T+'" width="'+(W-R-X(Math.min(23,sol.por)))+'" height="'+(H-T-B)+'" fill="var(--noite)"/>';
+  }
+  var fim=Math.min(23,ini+durMin/60);
+  s+='<rect x="'+X(ini)+'" y="'+T+'" width="'+Math.max(2,X(fim)-X(ini))+'" height="'+(H-T-B)+'" fill="none" stroke="var(--rio)" stroke-width="1.5" stroke-dasharray="4 3"/>';
+  for(var v=Math.ceil(ymin/2)*2; v<=ymax; v+=2){ s+='<text x="'+(L-6)+'" y="'+(Y(v)+4)+'" text-anchor="end" font-size="11" fill="var(--muted)">'+v+'</text>'; }
+  for(var h=0;h<24;h+=3){ s+='<text x="'+X(h)+'" y="'+(H-12)+'" text-anchor="middle" font-size="11" fill="var(--muted)">'+pad(h)+'h</text>'; }
+  if(horas[0].p90!=null){
+    var pp=horas.map(function(x,k){return (k?"L":"M")+X(x.hora).toFixed(1)+" "+Y(x.p90).toFixed(1);}).join(" ");
+    s+='<path d="'+pp+'" fill="none" stroke="var(--n4)" stroke-width="1.5" stroke-dasharray="5 4"/>';
+  }
+  var d=horas.map(function(x,k){return (k?"L":"M")+X(x.hora).toFixed(1)+" "+Y(x.ibutg).toFixed(1);}).join(" ");
+  s+='<path d="'+d+'" fill="none" stroke="var(--fg)" stroke-width="2.4" stroke-linejoin="round"/>';
+  horas.forEach(function(x){ s+='<circle cx="'+X(x.hora)+'" cy="'+Y(x.ibutg)+'" r="2.4" fill="var(--fg)"><title>'+pad(x.hora)+'h: '+fmt(x.ibutg)+' °C</title></circle>'; });
+  (pontos||[]).forEach(function(p){ s+='<circle cx="'+X(Math.min(23,p.h))+'" cy="'+Y(p.v)+'" r="5" fill="var(--rio)" stroke="var(--surface)" stroke-width="1.5"><title>Medido '+fmtH(p.h)+': '+fmt(p.v)+' °C</title></circle>'; });
+  s+='<line x1="'+L+'" y1="'+(H-B)+'" x2="'+(W-R)+'" y2="'+(H-B)+'" stroke="var(--line)"/>';
+  s+='<text x="'+L+'" y="'+(T-2)+'" font-size="11" fill="var(--muted)">IBUTG (°C)</text></svg>';
+  $("graf").innerHTML=s;
+  var lg='<span><i style="background:var(--fg)"></i>IBUTG estimado</span>';
+  if(horas[0].p90!=null) lg+='<span><i style="background:var(--n4)"></i>Dia quente típico (percentil 90)</span>';
+  lg+='<span><i style="background:var(--noite);border:1px solid var(--line)"></i>Sem luz do dia</span><span><i style="border:1.5px dashed var(--rio)"></i>Seu treino</span>';
+  if(pontos&&pontos.length) lg+='<span><i style="background:var(--rio);border-radius:50%"></i>Medido com TGD-400</span>';
+  $("leg").innerHTML=lg;
+}
+
+// ---------- render ----------
+function render(r){
+  var n=nivelDe(r.pico.ibutg), card=$("cartao");
+  card.className="card risco "+n.cor;
+  $("valor").innerHTML=fmt(r.pico.ibutg)+"<small>°C</small>";
+  $("pill").textContent="Nível "+n.id+" · "+n.nome;
+  $("contexto").textContent=r.nome+" · "+fmtData(r.dia)+" · "+fmtH(r.ini)+" a "+fmtH(r.ini+r.dur/60)+" · pico às "+pad(r.pico.hora)+"h · "+r.fonte+" · escala da categoria "+catAtiva();
+  $("acao").textContent=n.acao;
+  var ex=$("extras"); ex.textContent="";
+  var itens=[];
+  if(r.pico.p90!=null) itens.push("Num dia quente típico desta época (percentil 90), o pico do treino chegaria a "+fmt(r.pico.p90)+" °C, nível "+nivelDe(r.pico.p90).id+".");
+  if(n.id>=3) itens.push("Tenha ponto de apoio com sombra e água gelada no percurso.");
+  if(r.pico.ibutg>30) itens.push("IBUTG acima de 30 °C: deixe no ponto de apoio toalhas geladas, borrifador com água gelada e imersão em água fria para quem tiver sinais de alerta.");
+  if(r.ini<r.sol.nascer) itens.push("O treino começa antes do nascer do sol ("+fmtH(r.sol.nascer)+"): percurso iluminado e em grupo.");
+  itens.forEach(function(t){ var li=document.createElement("li"); li.textContent=t; ex.appendChild(li); });
+  var p=r.pico;
+  $("vars").innerHTML=[["Temperatura do ar",fmt(p.ta)+" °C"],["Umidade",fmt(p.ur,0)+" %"],["Vento (10 m)",fmt(p.vento)+" km/h"],["Radiação solar",fmt(p.solar,0)+" W/m²"],["Globo",fmt(p.tg)+" °C"],["Bulbo úmido natural",fmt(p.tbn)+" °C"]]
+    .map(function(a){return "<div><span>"+a[0]+"</span><b>"+a[1]+"</b></div>";}).join("");
+  var m=melhores(r.horas,r.dur,r.sol), js=$("janelas"); js.textContent="";
+  $("jTxt").textContent="Nascer do sol às "+fmtH(r.sol.nascer)+" e pôr do sol às "+fmtH(r.sol.por)+". Para "+r.dur+" minutos de treino:";
+  [["Com luz do dia",m.claro],["Na madrugada, antes do sol",m.escuro]].forEach(function(a){
+    var div=document.createElement("div"); div.className="janela";
+    if(!a[1]){ div.innerHTML='<span class="t">'+a[0]+'</span><span class="t">Sem janela possível com esta duração.</span>'; js.appendChild(div); return; }
+    var nn=nivelDe(a[1].pico.ibutg); div.classList.add(nn.cor);
+    div.innerHTML='<span class="t">'+a[0]+'</span><span class="h">'+fmtH(a[1].ini)+' a '+fmtH(a[1].ini+r.dur/60)+'</span><span><span class="pill">Nível '+nn.id+' · '+fmt(a[1].pico.ibutg)+' °C</span></span>';
+    js.appendChild(div);
+  });
+  var pontos = (window.CAMPO && window.CAMPO.pontosDoDia) ? window.CAMPO.pontosDoDia(r.dia) : [];
+  grafico(r.horas,r.sol,r.ini,r.dur,pontos);
+  if(window.CAMPO && window.CAMPO.medidaNaJanela) window.CAMPO.medidaNaJanela(r);
+  $("res").hidden=false;
+}
+
+function calcular(){
+  var dia=$("data").value, hm=$("hora").value.split(":"), dur=Math.max(15,Math.min(360,+$("dur").value||60));
+  if(!dia||hm.length<2){ status("Preencha data e horário.",true); return; }
+  var ini=+hm[0]+(+hm[1])/60;
+  if(ini+dur/60>24){ status("O treino precisa terminar até a meia-noite.",true); return; }
+  $("go").disabled=true; status("Buscando dados meteorológicos...");
+  carregarCat(local.lat,local.lon).then(function(){
+    tabelaNiveis(); status("Buscando dados meteorológicos...");
+    return carregarDia(local.lat,local.lon,dia);
+  }).then(function(d){
+    if(d.horas.length<24) throw new Error("dados incompletos");
+    var p=dia.split("-"), sol=IBUTG.sunTimes(+p[0],+p[1],+p[2],local.lat,local.lon,d.off/3600);
+    ultimo={dia:dia,ini:ini,dur:dur,horas:d.horas,sol:sol,fonte:d.fonte,nome:local.nome,pico:janela(d.horas,ini,dur)};
+    render(ultimo); status("");
+  }).catch(function(e){
+    status("Não foi possível buscar os dados ("+e.message+"). Confira a conexão e tente de novo.",true);
+  }).then(function(){ $("go").disabled=false; });
+}
+$("f").addEventListener("submit",function(e){ e.preventDefault(); calcular(); });
+
+// tabela de níveis da categoria em uso
+function tabelaNiveis(){
+  var c=IBUTG.CORTES[catAtiva()];
+  $("niveis").innerHTML=IBUTG.NIVEIS.map(function(n,i){
+    var faixa = i===0 ? "até "+fmt(c[0])+" °C" : (i===4 ? "acima de "+fmt(c[3])+" °C" : fmt(c[i-1]+0.1)+" a "+fmt(c[i])+" °C");
+    return '<div class="bgn '+n.cor+'"><b>'+faixa+'</b><span>Nível '+n.id+' · '+n.nome+'. '+esc(n.acao)+'</span></div>';
+  }).join("");
+  textoCat();
+}
+$("escala").addEventListener("change",function(){ tabelaNiveis(); if(ultimo) render(ultimo); });
+tabelaNiveis();
+
+window.APP={ nivel:nivelDe, carregarDia:carregarDia, processar:processar, fmt:fmt, fmtH:fmtH, fmtData:fmtData, esc:esc, pad:pad,
+  local:function(){return local;}, recalcular:function(){ if(ultimo) render(ultimo); }, hoje:hoje, difDias:difDias };
+calcular();
+})();
+</script>
+
+</body>
+</html>

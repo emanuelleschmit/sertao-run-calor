@@ -1,0 +1,5 @@
+# cópias locais geradas por gerar.js (a publicada é docs/index.html)
+SERTAO-RUN_Calor_v1_estimativa.html
+SERTAO-RUN_Calor_v2_campo.html
+# exportações de campo nunca entram no repositório
+*.csv
