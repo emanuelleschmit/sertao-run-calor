@@ -4,7 +4,7 @@ Calculadora de estresse térmico para treinos de corrida no Vale do São Francis
 
 Ferramenta do projeto SERTÃO-RUN, Universidade de Pernambuco, Campus Petrolina, apoiado pela FACEPE (APQ, Edital 28/2026).
 
-Acesse: `https://SEU-USUARIO.github.io/sertao-run-calor/`
+Acesse: https://emanuelleschmit.github.io/sertao-run-calor/
 
 ## O que a página faz
 
