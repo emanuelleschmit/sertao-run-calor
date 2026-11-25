@@ -1,5 +1,7 @@
 # SERTÃO-RUN Calor
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24533604.svg)](https://doi.org/10.5281/zenodo.24533604)
+
 Calculadora de estresse térmico para treinos de corrida no Vale do São Francisco (Petrolina, PE, e Juazeiro, BA). Estima o IBUTG (índice de bulbo úmido e termômetro de globo, em inglês WBGT) hora a hora, classifica o risco do treino e mostra o melhor horário com e sem luz do dia.
 
 Ferramenta do projeto SERTÃO-RUN, Universidade de Pernambuco, Campus Petrolina, apoiado pela FACEPE (APQ, Edital 28/2026).
@@ -65,6 +67,12 @@ Dados meteorológicos: Open-Meteo (https://open-meteo.com/), licença CC BY 4.0.
 ## Autoria e citação
 
 Emanuelle Francine Detogni Schmit, Universidade de Pernambuco. ORCID: https://orcid.org/0000-0002-5530-2773. Os dados de citação estão em `CITATION.cff`.
+
+Como citar (ABNT NBR 6023:2025):
+
+SCHMIT, E. F. D. *SERTÃO-RUN Calor*: calculadora de estresse térmico para corrida no Vale do São Francisco. Versão 1.0.0. [*S. l.*]: Zenodo, 2026. Software. DOI: https://doi.org/10.5281/zenodo.24533605.
+
+O DOI https://doi.org/10.5281/zenodo.24533604 sempre aponta para a versão mais recente.
 
 ## Licença
 
