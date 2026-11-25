@@ -5,6 +5,9 @@ type: software
 version: "1.0.0"
 date-released: "2026-11-25"
 license: MIT
+abstract: "Calculadora de estresse térmico para treinos de corrida no Vale do São Francisco (Petrolina, PE, e Juazeiro, BA). Estima o IBUTG (WBGT) hora a hora pelo método de Liljegren et al. (2008) com dados do Open-Meteo, classifica o risco pela escala regional de Grundstein et al. (2015), com a categoria calculada para cada local, e indica o melhor horário com e sem luz do dia. Ferramenta do projeto SERTÃO-RUN, Universidade de Pernambuco, apoiado pela FACEPE (APQ, Edital 28/2026)."
+repository-code: "https://github.com/emanuelleschmit/sertao-run-calor"
+url: "https://emanuelleschmit.github.io/sertao-run-calor/"
 authors:
   - family-names: "Schmit"
     given-names: "Emanuelle Francine Detogni"
